@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCMUTE - Công cụ đăng ký học phần</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #jwtToken {
+            min-height: 80px;
+        }
+
+        #courseList {
+            min-height: 120px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #registerBtn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        #registerBtn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        #registerBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #stopBtn {
+            background: #ef4444;
+            color: white;
+        }
+
+        #stopBtn:hover:not(:disabled) {
+            background: #dc2626;
+        }
+
+        #stopBtn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .result-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .result-box::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .result-box::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .result-box::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .success {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .error {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .warning {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .info {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 HCMUTE - Công cụ đăng ký học phần</h1>
+        
+        <div class="form-group">
+            <label for="jwtToken">JWT Token:</label>
+            <textarea id="jwtToken" placeholder="Nhập JWT Token của bạn..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="courseList">Mã lớp học phần (mỗi mã một dòng):</label>
+            <textarea id="courseList" placeholder="Ví dụ:&#10;ADPL331379_03&#10;MATH101234_01&#10;PHYS205678_02">ADPL331379_03</textarea>
+        </div>
+
+        <div class="button-group">
+            <button id="registerBtn" onclick="startRegistration()">
+                🚀 Đăng ký môn học
+            </button>
+            <button id="stopBtn" onclick="stopRegistration()" disabled>
+                ⛔ Dừng lại
+            </button>
+        </div>
+
+        <div class="form-group">
+            <label>📊 Kết quả:</label>
+            <div id="result" class="result-box">
+                Chờ đăng ký...
+            </div>
+        </div>
+
+        <div class="footer">
+            Chế độ: Tự động thử lại cho đến khi thành công
+        </div>
+    </div>
+
+    <script>
+        let stopRequested = false;
+        let isRunning = false;
+
+        function log(message, type = 'info') {
+            const resultBox = document.getElementById('result');
+            const span = document.createElement('span');
+            span.className = type;
+            
+            if (type === 'success') {
+                span.textContent = '✓ ' + message;
+            } else if (type === 'error') {
+                span.textContent = '✗ ' + message;
+            } else if (type === 'warning') {
+                span.textContent = '⚠ ' + message;
+            } else {
+                span.textContent = message;
+            }
+            
+            resultBox.appendChild(span);
+            resultBox.appendChild(document.createElement('br'));
+            resultBox.scrollTop = resultBox.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('result').innerHTML = '';
+        }
+
+        function stopRegistration() {
+            stopRequested = true;
+            log('Đang dừng lại...', 'warning');
+        }
+
+        async function startRegistration() {
+            const jwtToken = document.getElementById('jwtToken').value.trim();
+            const courseListText = document.getElementById('courseList').value.trim();
+
+            if (!jwtToken) {
+                alert('Vui lòng nhập JWT Token!');
+                return;
+            }
+
+            const courseList = courseListText.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+
+            if (courseList.length === 0) {
+                alert('Vui lòng nhập ít nhất một mã lớp học phần!');
+                return;
+            }
+
+            // Setup UI
+            stopRequested = false;
+            isRunning = true;
+            document.getElementById('registerBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            clearLog();
+
+            log(`Đang đăng ký ${courseList.length} môn học...`);
+            log('Chế độ: Tự động thử lại cho đến khi thành công');
+            log('');
+
+            const turnId = '66';
+            const studyProgramId = '22110ST';
+            const action = 'REGIST';
+            const url = `https://dangkyapi.hcmute.edu.vn/api/Regist/RegistScheduleStudyUnit?TurnID=${turnId}&Action=${action}&StudyProgramID=${studyProgramId}`;
+
+            const headers = {
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Content-Type': 'application/json',
+                'apiKey': 'pscRBF0zT2Mqo6vMw69YMOH43IrB2RtXBS0EHit2kzv',
+                'clientId': 'dtl',
+                'Authorization': `Bearer ${jwtToken}`,
+                'Origin': 'https://dkmh.hcmute.edu.vn',
+            };
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (let idx = 0; idx < courseList.length; idx++) {
+                if (stopRequested) {
+                    log(`Đã dừng! Còn ${courseList.length - idx} môn chưa đăng ký.`, 'warning');
+                    break;
+                }
+
+                const scheduleAlias = courseList[idx];
+                const curriculumId = `252${scheduleAlias}`;
+                let studyUnitId = scheduleAlias.split('_')[0];
+                if (!studyUnitId.startsWith('252')) {
+                    studyUnitId = `252${studyUnitId}`;
+                }
+
+                const payload = [{
+                    'CurriculumID': curriculumId,
+                    'ScheduleStudyUnitAlias': scheduleAlias,
+                    'CurriculumName': '',
+                    'StudyUnitID': studyUnitId,
+                    'TypeName': 'Lý thuyết',
+                    'Credits': 0,
+                    'StudyUnitTypeID': 1,
+                    'IsRegisted': false
+                }];
+
+                log(`[${idx + 1}/${courseList.length}] Đăng ký: ${scheduleAlias}`);
+
+                let attempt = 0;
+                let registered = false;
+
+                while (!registered && !stopRequested) {
+                    attempt++;
+                    const timestamp = new Date().toLocaleTimeString('vi-VN');
+
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: headers,
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.status === 200) {
+                            log(`  [${timestamp}] Lần thử #${attempt} - THÀNH CÔNG!`, 'success');
+                            successCount++;
+                            registered = true;
+
+                            try {
+                                const data = await response.json();
+                                log(`  Response: ${JSON.stringify(data)}`);
+                            } catch (e) {
+                                // Ignore JSON parse error
+                            }
+                        } else {
+                            log(`  [${timestamp}] Lần thử #${attempt} - (Status: ${response.status})`);
+                        }
+                    } catch (error) {
+                        log(`  [${timestamp}] Lần thử #${attempt} - Lỗi`);
+                    }
+
+                    if (!registered && !stopRequested) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+
+                if (!registered) {
+                    failCount++;
+                }
+
+                log('');
+            }
+
+            // Summary
+            log('='.repeat(50));
+            log('Tổng kết:');
+            log(`  - Thành công: ${successCount}/${courseList.length}`);
+            log(`  - Thất bại: ${failCount}/${courseList.length}`);
+
+            if (failCount === 0) {
+                log(`\n🎉 Đăng ký thành công ${successCount} môn học!`, 'success');
+            } else {
+                log(`\n⚠ Thành công: ${successCount}, Thất bại: ${failCount}`, 'warning');
+            }
+
+            // Reset UI
+            document.getElementById('registerBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            isRunning = false;
+            stopRequested = false;
+        }
+    </script>
+</body>
+</html>
