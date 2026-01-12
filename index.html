@@ -314,17 +314,6 @@
             const turnId = '66';
             const studyProgramId = '22110ST';
             const action = 'REGIST';
-            const url = `https://dangkyapi.hcmute.edu.vn/api/Regist/RegistScheduleStudyUnit?TurnID=${turnId}&Action=${action}&StudyProgramID=${studyProgramId}`;
-
-            const headers = {
-                'Accept': 'application/json, text/plain, */*',
-                'Accept-Language': 'en-US,en;q=0.5',
-                'Content-Type': 'application/json',
-                'apiKey': 'pscRBF0zT2Mqo6vMw69YMOH43IrB2RtXBS0EHit2kzv',
-                'clientId': 'dtl',
-                'Authorization': `Bearer ${jwtToken}`,
-                'Origin': 'https://dkmh.hcmute.edu.vn',
-            };
 
             let successCount = 0;
             let failCount = 0;
@@ -363,25 +352,33 @@
                     const timestamp = new Date().toLocaleTimeString('vi-VN');
 
                     try {
-                        const response = await fetch(url, {
+                        // Call backend proxy instead of direct API
+                        const response = await fetch('/api/register', {
                             method: 'POST',
-                            headers: headers,
-                            body: JSON.stringify(payload)
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                jwtToken: jwtToken,
+                                payload: payload,
+                                turnId: turnId,
+                                studyProgramId: studyProgramId,
+                                action: action
+                            })
                         });
 
-                        if (response.status === 200) {
+                        const result = await response.json();
+
+                        if (result.status === 200) {
                             log(`  [${timestamp}] Lần thử #${attempt} - THÀNH CÔNG!`, 'success');
                             successCount++;
                             registered = true;
 
-                            try {
-                                const data = await response.json();
-                                log(`  Response: ${JSON.stringify(data)}`);
-                            } catch (e) {
-                                // Ignore JSON parse error
+                            if (result.data) {
+                                log(`  Response: ${JSON.stringify(result.data)}`);
                             }
                         } else {
-                            log(`  [${timestamp}] Lần thử #${attempt} - (Status: ${response.status})`);
+                            log(`  [${timestamp}] Lần thử #${attempt} - (Status: ${result.status})`);
                         }
                     } catch (error) {
                         log(`  [${timestamp}] Lần thử #${attempt} - Lỗi`);
