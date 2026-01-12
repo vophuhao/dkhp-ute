@@ -224,8 +224,13 @@
         </div>
 
         <div class="form-group">
+            <label for="studyProgramId">Mã chương trình đào tạo</label>
+            <input type="text" id="studyProgramId"  placeholder="Ví dụ: 22110ST" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+        </div>
+
+        <div class="form-group">
             <label for="courseList">Mã lớp học phần (mỗi mã một dòng):</label>
-            <textarea id="courseList" placeholder="Ví dụ:&#10;ADPL331379_03&#10;MATH101234_01&#10;PHYS205678_02">ADPL331379_03</textarea>
+            <textarea id="courseList" placeholder="Ví dụ:&#10;ADPL331379_03&#10;MATH101234_01&#10;PHYS205678_02"></textarea>
         </div>
 
         <div class="button-group">
@@ -285,9 +290,15 @@
         async function startRegistration() {
             const jwtToken = document.getElementById('jwtToken').value.trim();
             const courseListText = document.getElementById('courseList').value.trim();
+            const studyProgramId = document.getElementById('studyProgramId').value.trim();
 
             if (!jwtToken) {
                 alert('Vui lòng nhập JWT Token!');
+                return;
+            }
+
+            if (!studyProgramId) {
+                alert('Vui lòng nhập Study Program ID!');
                 return;
             }
 
@@ -312,7 +323,6 @@
             log('');
 
             const turnId = '66';
-            const studyProgramId = '22110ST';
             const action = 'REGIST';
 
             let successCount = 0;
