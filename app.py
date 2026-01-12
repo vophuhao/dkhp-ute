@@ -24,13 +24,10 @@ def register_course():
         
         headers = {
             'host': 'dangkyapi.hcmute.edu.vn',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0',
             'Accept': 'application/json, text/plain, */*',
             'Accept-Language': 'en-US,en;q=0.5',
             'Referer': 'https://dkmh.hcmute.edu.vn/',
             'Content-Type': 'application/json',
-            'apiKey': 'pscRBF0zT2Mqo6vMw69YMOH43IrB2RtXBS0EHit2kzv',
-            'clientId': 'dtl',
             'Authorization': f'Bearer {jwt_token}',
             'Origin': 'https://dkmh.hcmute.edu.vn',
             'Connection': 'keep-alive',
